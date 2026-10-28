@@ -1,0 +1,12 @@
+AppHtml/cache/
+Programs/*.exe
+Programs/*.dfo
+Programs/*.pck
+Programs/*.dbg
+AppSrc/*.bak
+Data/*.dat.bak
+*.tmp
+*.swp
+
+*.lock
+*.sws.lock
