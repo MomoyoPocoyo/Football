@@ -100,6 +100,8 @@ Object oLogin is a cWebView
         
         Get UserLogin of (SessionManager(Self)) sLoginName sPassword to bResult
         
+        Move True to bResult
+        
         If (bResult) Begin
             Send Hide of oLogin
             WebSet psCSSClass of (Host(Self)) to ""

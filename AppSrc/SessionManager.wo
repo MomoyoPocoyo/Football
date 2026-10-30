@@ -1,6 +1,8 @@
-Use cWebSessionManagerStandard.pkg
+﻿Use cWebSessionManager.pkg
 
-Object oSessionManager is a cWebSessionManagerStandard
-End_Object
+Object oSessionManager is a cWebSessionManager
+  End_Object
+
+
 
 
