@@ -1,0 +1,7 @@
+#REPLACE FILE1 liga
+#REPLACE liga.File_Number |CI1
+#REPLACE liga.ID |FN1,1
+#REPLACE liga.Nombre |FS1,2
+#REPLACE liga.Pais |FS1,3
+#REPLACE liga.Equipos |FN1,4
+#REPLACE liga.EquiposMax |FN1,5
