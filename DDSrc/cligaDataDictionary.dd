@@ -12,6 +12,16 @@ Class cligaDataDictionary is a DataDictionary
         Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
         Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+        
+        // 1. Proteger PK
+        Set Key_Field_State Field Liga.ID to True
+
+        // 2. Inmutabilidad
+        Set Field_Option Field Liga.Nombre DD_DISPLAYONLY to True
+        
+        // 3. Campos obligatorios (NOT NULL)
+        Set Field_Option Field Liga.Nombre DD_REQUIRED to True
+        Set Field_Option Field Liga.Pais DD_REQUIRED to True
 
     End_Procedure
 

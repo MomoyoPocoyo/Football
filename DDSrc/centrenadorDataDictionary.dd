@@ -1,7 +1,14 @@
 ﻿Use DataDict.pkg
+Use DDValTbl.pkg
+Use cli.pkg
 
 Open entrenador
 Open equipo
+
+Object oEntrenadorNacionalidad_VT is a CodeValidationTable
+    Set Type_Value to "NAC"
+    Set Allow_Blank_State to False
+End_Object
 
 Class centrenadorDataDictionary is a DataDictionary
     
@@ -10,12 +17,34 @@ Class centrenadorDataDictionary is a DataDictionary
         Set Main_File to entrenador.File_Number
 
         Set Add_Server_File to equipo.File_Number
+        Set ParentNullAllowed equipo.File_Number to True
 
         Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
         Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+        
+        // 1. Proteger PK
+        Set Key_Field_State Field Entrenador.ID to True
 
+        // 2. Inmutabilidad (Nombre y Apellido)
+        Set Field_Option Field Entrenador.Nombre DD_DISPLAYONLY to True
+        Set Field_Option Field Entrenador.Apellido DD_DISPLAYONLY to True
+        
+        // 3. Campos obligatorios (NOT NULL)
+        Set Field_Option Field Entrenador.Nombre DD_REQUIRED to True
+        Set Field_Option Field Entrenador.Apellido DD_REQUIRED to True
+        Set Field_Option Field Entrenador.Nacionalidad DD_REQUIRED to True
+        
+        Set Field_Value_Table Field Entrenador.Nacionalidad to oEntrenadorNacionalidad_VT
+
+    End_Procedure
+    
+    Procedure Save_Main_File
+        If (entrenador.EquipoID = 0) Begin
+            Set_Attribute DF_FIELD_IS_NULL of entrenador.File_Number (RefTable(entrenador.EquipoID)) to True
+        End
+        Forward Send Save_Main_File
     End_Procedure
 
 End_Class

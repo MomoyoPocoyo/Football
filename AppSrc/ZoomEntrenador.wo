@@ -7,6 +7,9 @@ Use cWebPanel.pkg
 Use cWebMenuGroup.pkg
 Use cWebMenuItem.pkg
 Use cWebForm.pkg
+Use cWebCombo.pkg
+Use cWebButton.pkg
+
 
 Use cligaDataDictionary.dd
 Use cequipoDataDictionary.dd
@@ -64,7 +67,7 @@ Object oZoomEntrenador is a cWebView
             Set psLabel to "Apellido"
         End_Object 
 
-        Object oentrenadorNacionalidad is a cWebForm
+        Object oentrenadorNacionalidad is a cWebCombo
             Entry_Item entrenador.Nacionalidad
             Set piColumnSpan to 10
             Set piColumnIndex to 0
@@ -87,6 +90,25 @@ Object oZoomEntrenador is a cWebView
                 Send NavigatePath
             End_Procedure
         End_Object 
+     Object oDespedirBtn is a cWebButton
+            Set piColumnSpan to 4
+            Set piColumnIndex to 0
+            Set psCaption to "Despedir"
+
+            Procedure OnClick
+                Boolean bHasEntrenador bHasEquipo
+
+                Get HasRecord of oentrenador_DD to bHasEntrenador
+                Get HasRecord of oequipo_DD to bHasEquipo
+
+                If (bHasEntrenador and bHasEquipo) Begin
+                    Send Clear of oequipo_DD
+                    Set Changed_State of oentrenador_DD to True
+                    Send Request_Save
+                    Send SetActionButtons
+                End
+            End_Procedure
+        End_Object
     End_Object 
 
     Object oActionGroup is a cWebMenuGroup
@@ -135,12 +157,13 @@ Object oZoomEntrenador is a cWebView
 
     Procedure SetActionButtons
         tWebNavigateData NavigateData
-        Boolean bIsExistingRecord
+        Boolean bIsExistingRecord bHasEquipo
 
         Get GetNavigateData to NavigateData
-        
+
         // Si NO es un nuevo registro, significa que existe en base de datos y se puede borrar
         Move (not(NavigateData.bNewRecord)) to bIsExistingRecord
+        Get HasRecord of oequipo_DD to bHasEquipo
 
         // Ocultamos todos los botones primero
         WebSet pbRender of oEditBtn to False
@@ -156,6 +179,8 @@ Object oZoomEntrenador is a cWebView
             WebSet pbRender of oCancelChangesBtn to True
             WebSet pbRender of oDeleteBtn to bIsExistingRecord
         End
+
+        WebSet pbEnabled of oDespedirBtn to (bIsExistingRecord and bHasEquipo)
     End_Procedure
 
    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject

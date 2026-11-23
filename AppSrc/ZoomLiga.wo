@@ -10,6 +10,7 @@ Use cWebForm.pkg
 Use cligaDataDictionary.dd
 Use cequipoDataDictionary.dd
 Use cWebGrid.pkg
+Use cWebColumn.pkg
 
 Object oZoomLiga is a cWebView
     Set piColumnCount to 12
