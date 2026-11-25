@@ -58,13 +58,11 @@ Object oZoomEquipo is a cWebView
             Set peLabelPosition to lpTop
             Set psLabel to "LigaID"
             
-            // Lupa activada
+       
             Set pbPromptButton to True
 
-            // Registramos ruta hacia el Select del padre
             WebRegisterPath ntNavigateForward oSelectLiga
 
-            // Disparamos navegación al hacer clic en lupa
             Procedure OnPrompt
                 Send NavigatePath
             End_Procedure

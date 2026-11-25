@@ -3,6 +3,7 @@ Use DDValTbl.pkg
 
 Open jugador
 Open equipo
+Open jugadorposicion
 
 Object oNacionalidad_VT is a CodeValidationTable
     Set Type_Value to "NAC"
@@ -14,29 +15,24 @@ Class cjugadorDataDictionary is a DataDictionary
     Procedure Construct_Object
         Forward Send Construct_Object
         Set Main_File to jugador.File_Number
-
         Set Add_Server_File to equipo.File_Number
-
         Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
         Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
         
-
-        // 1. Proteger PK
         Set Key_Field_State Field Jugador.ID to True
 
-        // 2. Inmutabilidad (Nombre y Apellido)
         Set Field_Option Field Jugador.Nombre DD_DISPLAYONLY to True
         Set Field_Option Field Jugador.Apellido DD_DISPLAYONLY to True
         
-        // 3. Campos obligatorios (NOT NULL)
         Set Field_Option Field Jugador.Nombre DD_REQUIRED to True
         Set Field_Option Field Jugador.Apellido DD_REQUIRED to True
         Set Field_Option Field Jugador.EquipoID DD_REQUIRED to True
         Set Field_Option Field Jugador.Nacionalidad DD_REQUIRED to True
         
         Set Field_Value_Table Field Jugador.Nacionalidad to oNacionalidad_VT
+        Set Add_Client_File to jugadorposicion.File_Number
    
     End_Procedure
 

@@ -1,0 +1,163 @@
+﻿// C:\DataFlex Projects\FutbolWebApp3\AppSrc\SelectJugadorPosicion.wo
+// SelectJugadorPosicion
+//
+
+Use cWebView.pkg
+Use cWebList.pkg
+Use cWebColumn.pkg
+Use cWebGroup.pkg
+Use cWebButton.pkg
+
+Use cligaDataDictionary.dd
+Use cequipoDataDictionary.dd
+Use cjugadorDataDictionary.dd
+Use cposicionDataDictionary.dd
+Use cjugadorposicionDataDictionary.dd
+
+Object oSelectJugadorPosicion is a cWebView
+    Set psCaption to "Editar Posiciones"
+    Set peWebViewStyle to wvsDrilldown
+    Set peViewType to vtSelect
+    Set piColumnCount to 12
+    Set pbShowCaption to False
+    Set piMaxWidth to 1024
+
+    // --- Árbol principal (posiciones asignadas al jugador) ---
+    Object oliga_DD is a cligaDataDictionary
+    End_Object
+
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server to oliga_DD
+    End_Object
+
+    Object ojugador_DD is a cjugadorDataDictionary
+        Set DDO_Server to oequipo_DD
+    End_Object
+
+    Object oposicion_DD is a cposicionDataDictionary
+    End_Object
+
+    Object ojugadorposicion_DD is a cjugadorposicionDataDictionary
+        Set DDO_Server to ojugador_DD
+        Set DDO_Server to oposicion_DD
+        Set Constrain_File to jugador.File_Number
+    End_Object
+
+    // --- DDO independiente para listar TODAS las posiciones disponibles ---
+    Object oposicionTodas_DD is a cposicionDataDictionary
+    End_Object
+
+    Set Main_DD to ojugadorposicion_DD
+    Set Server  to ojugadorposicion_DD
+
+    // 1. Lista izquierda: Todas las posiciones
+    Object oListTodasPosiciones is a cWebList
+        Set Server to oposicionTodas_DD
+        Set piColumnIndex to 0
+        Set piColumnSpan to 5
+        Set piHeight to 350
+        Set pbShowHeader to True
+
+        Object oPosTodasNombre is a cWebColumn
+            Entry_Item posicion.Nombre
+            Set psCaption to "Todas las posiciones"
+            Set piWidth to 300
+        End_Object
+    End_Object
+
+    // 2. Botones centrales: Añadir y Borrar
+    Object oBtnGroup is a cWebGroup
+        Set piColumnIndex to 5
+        Set piColumnSpan to 2
+        Set piColumnCount to 1
+        Set pbShowBorder to False
+        Set pbShowCaption to False
+
+        Object oAddBtn is a cWebButton
+            Set psCaption to "Añadir >>"
+            Set piColumnSpan to 1
+
+            Procedure OnClick
+                Integer iJugadorID iPosicionID
+                Boolean bExiste
+
+                // Leemos el jugador actual y la posición seleccionada en la lista izquierda
+                Get Field_Current_Value of ojugador_DD Field jugador.ID to iJugadorID
+                Get Field_Current_Value of oposicionTodas_DD Field posicion.ID to iPosicionID
+
+                If (iPosicionID = 0) Begin
+                    Send ShowInfoBox "Selecciona primero una posición de la lista." "Aviso"
+                    Procedure_Return
+                End
+
+                // Vaciamos el DDO hijo (ojugador_DD se conserva por estar acotado)
+                Send Clear of ojugadorposicion_DD
+
+                // Sembramos el File Buffer y buscamos si la combinación ya existe usando Index 2 (JugadorID, PosicionID)
+                Move iJugadorID to jugadorposicion.JugadorID
+                Move iPosicionID to jugadorposicion.PosicionID
+                Send Request_Find of ojugadorposicion_DD EQ jugadorposicion.File_Number 2
+
+                // Guardamos inmediatamente la variable global Found en una variable local
+                Move (Found) to bExiste
+
+                If (bExiste) Begin
+                    Send ShowInfoBox "Esa posición ya está asignada a este jugador." "Posición ya asignada"
+                End
+                Else Begin
+                    // Preparamos el nuevo registro cargando su padre en oposicion_DD
+                    Send Clear of ojugadorposicion_DD
+                    Move iPosicionID to posicion.ID
+                    Send Request_Find of oposicion_DD EQ posicion.File_Number 1
+
+                    Set Field_Changed_Value of ojugadorposicion_DD Field jugadorposicion.PosicionID to iPosicionID
+                    Send Request_Save of ojugadorposicion_DD
+
+                    // Recargamos la lista del jugador para mostrar la nueva posición
+                    Send GridRefresh of oListJugadorPosiciones
+                End
+            End_Procedure
+        End_Object
+
+        Object oDeleteBtn is a cWebButton
+            Set psCaption to "<< Borrar"
+            Set piColumnSpan to 1
+
+            Procedure OnClick
+                Boolean bHasRecord
+
+                // La fila seleccionada en oListJugadorPosiciones ya está cargada en ojugadorposicion_DD
+                Get HasRecord of ojugadorposicion_DD to bHasRecord
+
+                If (not(bHasRecord)) Begin
+                    Send ShowInfoBox "Selecciona primero una posición del jugador para borrar." "Aviso"
+                    Procedure_Return
+                End
+
+                Send Request_Delete of ojugadorposicion_DD
+                Send GridRefresh of oListJugadorPosiciones
+            End_Procedure
+        End_Object
+    End_Object
+
+    // 3. Lista derecha: Solo las posiciones de este jugador
+    Object oListJugadorPosiciones is a cWebList
+        Set Server to ojugadorposicion_DD
+        Set piColumnIndex to 7
+        Set piColumnSpan to 5
+        Set piHeight to 350
+        Set pbShowHeader to True
+
+        Object oPosJugadorNombre is a cWebColumn
+            Entry_Item posicion.Nombre
+            Set psCaption to "Posiciones del jugador"
+            Set piWidth to 300
+        End_Object
+    End_Object
+
+    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
+        Send GridRefresh of oListTodasPosiciones
+        Send GridRefresh of oListJugadorPosiciones
+    End_Procedure
+
+End_Object
